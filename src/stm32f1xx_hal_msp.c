@@ -33,7 +33,7 @@
   */
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
-#define HAL_CRC_MODULE_ENABLED
+
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
@@ -48,8 +48,6 @@ void HAL_MspInit(void)
   /* USER CODE END MspInit 0 */
 
   __HAL_RCC_AFIO_CLK_ENABLE();
-  __HAL_RCC_CRC_CLK_ENABLE();
-
 
   HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
 
@@ -61,6 +59,7 @@ void HAL_MspInit(void)
 
   /* USER CODE END MspInit 1 */
 }
+
 
 /* USER CODE BEGIN 1 */
 

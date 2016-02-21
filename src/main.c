@@ -31,6 +31,7 @@
   ******************************************************************************
   */
 /* Includes ------------------------------------------------------------------*/
+#include "stm32f103xb.h"
 #include "stm32f1xx_hal.h"
 #include "cmsis_os.h"
 
@@ -40,7 +41,6 @@
 
 /* Private variables ---------------------------------------------------------*/
 osThreadId defaultTaskHandle;
-osThreadId blinkTaskHandle;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -49,9 +49,8 @@ osThreadId blinkTaskHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-void GPIOClock_Config(void);
+static void MX_GPIO_Init(void);
 void StartDefaultTask(void const * argument);
-void BlinkTask(void const * argument);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -76,9 +75,9 @@ int main(void)
 
   /* Configure the system clock */
   SystemClock_Config();
-  GPIOClock_Config();
 
   /* Initialize all configured peripherals */
+  MX_GPIO_Init();
 
   /* USER CODE BEGIN 2 */
 
@@ -100,8 +99,6 @@ int main(void)
   /* definition and creation of defaultTask */
   osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
-  osThreadDef(blinkTask, BlinkTask, osPriorityNormal, 0, 128);
-  blinkTaskHandle = osThreadCreate(osThread(blinkTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -110,6 +107,7 @@ int main(void)
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
+ 
 
   /* Start scheduler */
   osKernelStart();
@@ -127,20 +125,6 @@ int main(void)
   }
   /* USER CODE END 3 */
 
-}
-
-void GPIOClock_Config(void)
-{
-	GPIO_InitTypeDef GPIO_InitStruct;
-
-	__GPIOA_CLK_ENABLE();
-
-	GPIO_InitStruct.Pin = GPIO_PIN_10;
-	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
-
-	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 }
 
 /** System Clock Configuration
@@ -172,6 +156,30 @@ void SystemClock_Config(void)
   HAL_NVIC_SetPriority(SysTick_IRQn, 15, 0);
 }
 
+/** Configure pins as 
+        * Analog 
+        * Input 
+        * Output
+        * EVENT_OUT
+        * EXTI
+*/
+void MX_GPIO_Init(void)
+{
+
+  GPIO_InitTypeDef GPIO_InitStruct;
+
+  /* GPIO Ports Clock Enable */
+  __GPIOC_CLK_ENABLE();
+
+  /*Configure GPIO pin : PC13 */
+  GPIO_InitStruct.Pin = GPIO_PIN_13;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+
+}
+
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
@@ -184,19 +192,10 @@ void StartDefaultTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+    osDelay(1000);
   }
   /* USER CODE END 5 */ 
-}
-
-void BlinkTask(void const * arguments)
-{
-	while(1)
-	{
-
-	}
-
-//		HAL_CR
 }
 
 #ifdef USE_FULL_ASSERT
